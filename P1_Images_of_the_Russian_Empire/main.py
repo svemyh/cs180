@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from aligner import Aligner
 from utils import display_images
+from skimage.transform import rescale, resize
 
 
 INPUT_IMAGE = "data/cathedral.jpg"
@@ -18,6 +19,9 @@ OUTPUT_IMAGE_PATH = "output/cathedral_colourized.jpg"
 im = plt.imread(INPUT_IMAGE)
 # convert to double (might want to do this later on to save memory)
 im = sk.img_as_float(im)
+
+im = resize(im, (int(im.shape[0] / 2), int(im.shape[1] / 2)), anti_aliasing=True)
+
 # compute height of each part as simply 1/3 of total height
 height = np.floor(im.shape[0] / 3.0).astype(np.int32)
 
@@ -28,22 +32,28 @@ b = im[:height]
 
 
 aligner = Aligner()
-ar = aligner.simple_align(
-    r, b
-)  # aligning image 'r' to a position as similar as possible to 'b'
-ag = aligner.dummy_align(g, b)
+# aligning images 'r' and 'g' to a position as similar as possible to 'b'
+ar = aligner.simple_align(r, b)
+ag = aligner.simple_align(g, b)
 
 # Creating color image by assembling the three colour channels red, green and blue.
 print(f"ar shape: {ar.shape}")
 print(f"ag shape: {ag.shape}")
 print(f"b shape: {b.shape}")
+im_out_baseline = np.dstack([r, g, b])
 im_out = np.dstack([ar, ag, b])
 
-display_images(r, g, b, im_out)  # For debugging
+display_images(r, g, b, im_out_baseline)
+display_images(ar, ag, b, im_out)  # For debugging
+
+plt.figure(figsize=(8, 8))
+plt.imshow(im_out_baseline)
+plt.title("Colorized image (baseline)")
 
 plt.figure(figsize=(8, 8))
 plt.imshow(im_out)
 plt.title("Colorized image")
+
 plt.show()
 
 plt.imsave(OUTPUT_IMAGE_PATH, im_out)

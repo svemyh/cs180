@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def display_images(r, g, b, im_out):
@@ -52,3 +53,53 @@ def display_images(r, g, b, im_out):
 # plt.imshow(im_out)
 # plt.title("Colorized image")
 # plt.show()
+
+
+
+def crop_image_with_corners(img, top_left, bottom_right):
+    """Crop image using top-left and bottom-right coordinates."""
+
+    top_row, left_col = top_left
+    bottom_row, right_col = bottom_right
+
+    cropped_img = img[top_row:bottom_row, left_col:right_col]
+    return cropped_img
+
+
+def crop_image_from_center(img, center, circumradius: int):
+    """Crop image by declaring a centr pixel coordinate then grabbing the 'circumradius' amount of pixels above it, below, to its right and elft."""
+    center_row, center_col = center
+
+    cropped_img = img[
+        center_row - circumradius : center_row + circumradius,
+        center_col - circumradius : center_col + circumradius,
+    ]
+    return cropped_img
+
+
+def translate_image(img, row_offset: int, col_offset: int):
+    """Translate an image given offsets in x and y. Retains img-dimensions between input- and output-image by either adding black padding or dropping pixels."""
+    print(f"Original image shape: {img.shape}")
+    rows, cols = img.shape
+    translated_img = np.zeros((rows, cols), dtype=img.dtype)  # Empty image of same size
+
+    if row_offset >= 0:
+        src_rows = slice(0, rows - row_offset)
+        dst_rows = slice(row_offset, rows)
+    else:
+        src_rows = slice(-row_offset, rows)
+        dst_rows = slice(0, rows + row_offset)
+
+    if col_offset >= 0:
+        src_cols = slice(0, cols - col_offset)
+        dst_cols = slice(col_offset, cols)
+    else:
+        src_cols = slice(-col_offset, cols)
+        dst_cols = slice(0, cols + col_offset)
+
+    translated_img[dst_rows, dst_cols] = img[src_rows, src_cols]
+
+    print(f"Translated image shape: {translated_img.shape}")
+
+    return translated_img
+

@@ -1,5 +1,6 @@
 import numpy as np
-
+from utils import crop_image_from_center, translate_image
+from ncc import ncc
 # align the images
 # functions that might be useful for aligning the images include:
 # np.roll, np.sum, sk.transform.rescale (for multiscale)
@@ -14,12 +15,16 @@ class Aligner:
         """Searches over a window of [-N,N] possible translational pixel displacements."""
         assert base_img.shape == target_img.shape
 
-        N = 5
-        SEARCH_GRID_CIRCUMRADIUS = 50
+        ### User defined parameters
+        N = 15
+        SEARCH_GRID_CIRCUMRADIUS = 100
 
-        search_grid_size = (
-            2 * SEARCH_GRID_CIRCUMRADIUS + 1
-        )  # Height & width of the search grid chosen from center of image. Must be odd.
+        # Compare a large as possible window of pixels
+        SEARCH_GRID_CIRCUMRADIUS = min(
+            SEARCH_GRID_CIRCUMRADIUS,
+            base_img.shape[0] // 2 - N,
+            base_img.shape[1] // 2 - N,
+        )
 
         img_width, img_height = base_img.shape
         center_x = img_width // 2
@@ -27,33 +32,31 @@ class Aligner:
 
         best_alignment_score = np.inf
         best_alignment = (0, 0)
-        for i in range(-N, N+1):
-            for j in range(-N, N+1):
-                print(f"i: {i}, j: {j}")
+        for i in range(-N, N + 1):
+            for j in range(-N, N + 1):
 
-                cropped_base_img = crop_image_with_center(
+                cropped_base_img = crop_image_from_center(
                     base_img,
-                    center=(center_x+i, center_y+j),
+                    center=(center_x + i, center_y + j),
                     circumradius=SEARCH_GRID_CIRCUMRADIUS,
                 )
-
-                cropped_target_img = crop_image_with_center(
+                cropped_target_img = crop_image_from_center(
                     target_img,
                     center=(center_x, center_y),
                     circumradius=SEARCH_GRID_CIRCUMRADIUS,
                 )
 
-                #print(f"cropped_img shape: {cropped_base_img.shape}")
-                #print(f"cropped_target_img shape: {cropped_target_img.shape}")
-
-                similiarity_score = l2_norm(cropped_base_img, cropped_target_img)
+                similiarity_score = ncc(cropped_base_img, cropped_target_img)
                 if similiarity_score < best_alignment_score:
                     best_alignment = (i, j)
                     best_alignment_score = similiarity_score
 
-        aligned_image = crop_image_with_center(
-            base_img, center=(center_x+i, center_y+j), circumradius=SEARCH_GRID_CIRCUMRADIUS
-        )
+                    
+
+        print(f"best alignment at coords: {best_alignment}"
+                    )
+        aligned_image = translate_image(base_img, best_alignment[0], -best_alignment[1])
+
         return aligned_image
 
 
@@ -66,22 +69,4 @@ def l2_norm(img1, img2):
     return l2_norm
 
 
-def crop_image_with_corners(img, top_left, bottom_right):
-    """Crop image using top-left and bottom-right coordinates."""
 
-    top_row, left_col = top_left
-    bottom_row, right_col = bottom_right
-
-    cropped_img = img[top_row:bottom_row, left_col:right_col]
-    return cropped_img
-
-
-def crop_image_with_center(img, center, circumradius: int):
-    """Crop image by declaring a centr pixel coordinate then grabbing the 'circumradius' amount of pixels above it, below, to its right and elft."""
-    center_row, center_col = center
-
-    cropped_img = img[
-        center_row - circumradius : center_row + circumradius,
-        center_col - circumradius : center_col + circumradius,
-    ]
-    return cropped_img
