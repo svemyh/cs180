@@ -28,17 +28,20 @@ b = im[:height]
 
 
 aligner = Aligner()
-ar = aligner.dummy_align(
+ar = aligner.simple_align(
     r, b
 )  # aligning image 'r' to a position as similar as possible to 'b'
 ag = aligner.dummy_align(g, b)
 
 # Creating color image by assembling the three colour channels red, green and blue.
+print(f"ar shape: {ar.shape}")
+print(f"ag shape: {ag.shape}")
+print(f"b shape: {b.shape}")
 im_out = np.dstack([ar, ag, b])
 
 display_images(r, g, b, im_out)  # For debugging
 
-plt.figure(figsize=(8, 8)) 
+plt.figure(figsize=(8, 8))
 plt.imshow(im_out)
 plt.title("Colorized image")
 plt.show()
