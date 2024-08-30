@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 
 def display_images(r, g, b, im_out):
-    """Creates a single large figure with 4 subplots"""
+    """Displays a single large figure with 4 subplots."""
 
     fig, axs = plt.subplots(2, 2, figsize=(12, 10))
     axs[0, 0].imshow(r, cmap="gray")

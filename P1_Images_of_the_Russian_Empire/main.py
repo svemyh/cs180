@@ -5,7 +5,6 @@
 
 import numpy as np
 import skimage as sk
-import skimage.io as skio
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from aligner import Aligner
@@ -16,7 +15,7 @@ INPUT_IMAGE = "data/cathedral.jpg"
 OUTPUT_IMAGE_PATH = "output/cathedral_colourized.jpg"
 
 
-im = skio.imread(INPUT_IMAGE)
+im = plt.imread(INPUT_IMAGE)
 # convert to double (might want to do this later on to save memory)
 im = sk.img_as_float(im)
 # compute height of each part as simply 1/3 of total height
@@ -29,7 +28,9 @@ b = im[:height]
 
 
 aligner = Aligner()
-ar = aligner.dummy_align(r, b) # aligning image 'r' to a position as similar as possible to 'b' 
+ar = aligner.dummy_align(
+    r, b
+)  # aligning image 'r' to a position as similar as possible to 'b'
 ag = aligner.dummy_align(g, b)
 
 # Creating color image by assembling the three colour channels red, green and blue.
@@ -37,6 +38,7 @@ im_out = np.dstack([ar, ag, b])
 
 display_images(r, g, b, im_out)  # For debugging
 
+plt.figure(figsize=(8, 8)) 
 plt.imshow(im_out)
 plt.title("Colorized image")
 plt.show()
