@@ -10,17 +10,18 @@ import matplotlib.image as mpimg
 from aligner import Aligner
 from utils import display_images
 from skimage.transform import rescale, resize
+from utils import translate_image
 
 
-INPUT_IMAGE = "data/cathedral.jpg"
-OUTPUT_IMAGE_PATH = "output/cathedral_colourized.jpg"
+INPUT_IMAGE = "data/monastery.jpg"
+OUTPUT_IMAGE_PATH = "output/out_colourized.jpg"
 
 
 im = plt.imread(INPUT_IMAGE)
 # convert to double (might want to do this later on to save memory)
 im = sk.img_as_float(im)
 
-im = resize(im, (int(im.shape[0] / 2), int(im.shape[1] / 2)), anti_aliasing=True)
+# im = resize(im, (int(im.shape[0] / 2), int(im.shape[1] / 2)), anti_aliasing=True)
 
 # compute height of each part as simply 1/3 of total height
 height = np.floor(im.shape[0] / 3.0).astype(np.int32)
@@ -29,7 +30,7 @@ height = np.floor(im.shape[0] / 3.0).astype(np.int32)
 r = im[2 * height : 3 * height]
 g = im[height : 2 * height]
 b = im[:height]
-
+zero = np.zeros_like(r)
 
 aligner = Aligner()
 # aligning images 'r' and 'g' to a position as similar as possible to 'b'
@@ -37,14 +38,22 @@ ar = aligner.simple_align(r, b)
 ag = aligner.simple_align(g, b)
 
 # Creating color image by assembling the three colour channels red, green and blue.
-print(f"ar shape: {ar.shape}")
-print(f"ag shape: {ag.shape}")
-print(f"b shape: {b.shape}")
 im_out_baseline = np.dstack([r, g, b])
 im_out = np.dstack([ar, ag, b])
 
-display_images(r, g, b, im_out_baseline)
-display_images(ar, ag, b, im_out)  # For debugging
+display_images(r, g, b, im_out_baseline) # For debugging
+display_images(ar, ag, b, im_out)  
+
+r_man = translate_image(r, 3, -2)
+g_man = translate_image(g, 2, 4)
+im_man = np.dstack([r_man, g_man, b])
+display_images(r_man, g_man, b, im_man)
+
+
+display_images(r, ar, zero, zero) # For debugging
+display_images(g, ag, zero, zero)  
+display_images(b, b, zero, zero)  
+
 
 plt.figure(figsize=(8, 8))
 plt.imshow(im_out_baseline)

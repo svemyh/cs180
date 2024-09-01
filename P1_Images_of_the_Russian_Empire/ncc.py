@@ -4,17 +4,18 @@
 
 import numpy as np
 
+
 def norm_data(data):
     """
     normalize data to have mean=0 and standard_deviation=1
     """
-    mean_data=np.mean(data)
-    std_data=np.std(data, ddof=1)
-    #return (data-mean_data)/(std_data*np.sqrt(data.size-1))
-    return (data-mean_data)/(std_data)
+    mean_data = np.mean(data)
+    std_data = np.std(data, ddof=1)
+    # return (data-mean_data)/(std_data*np.sqrt(data.size-1))
+    return (data - mean_data) / (std_data)
 
 
-def ncc(data0, data1):
+def ncc2(data0, data1):
     """
     normalized cross-correlation coefficient between two data sets
 
@@ -22,4 +23,4 @@ def ncc(data0, data1):
     ----------
     data0, data1 :  numpy arrays of same size
     """
-    return (1.0/(data0.size-1)) * np.sum(norm_data(data0)*norm_data(data1))
+    return (1.0 / (data0.size - 1)) * np.sum(norm_data(data0) * norm_data(data1))
