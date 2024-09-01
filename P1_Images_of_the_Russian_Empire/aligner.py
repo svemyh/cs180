@@ -21,8 +21,8 @@ class Aligner:
         assert base_img.shape == target_img.shape
 
         ### User defined parameters
-        N = 5
-        SEARCH_GRID_CIRCUMRADIUS = 15
+        N = 8
+        SEARCH_GRID_CIRCUMRADIUS = 200
 
         # Compare a large as possible window of pixels
         SEARCH_GRID_CIRCUMRADIUS = min(
@@ -90,25 +90,6 @@ class Aligner:
 
         return aligned_image
 
-
-def l2_norm(img1, img2):
-    assert img1.shape == img2.shape
-
-    difference = img1 - img2
-    l2_norm = np.sqrt(np.sum(np.square(difference)))
-
-    return l2_norm
-
-
-def ncc(img1, img2):
-    norm_img1 = np.linalg.norm(img1)
-    norm_img2 = np.linalg.norm(img2)
-
-    normalized_image1 = img1 / norm_img1
-    normalized_image2 = img2 / norm_img2
-
-    ncc_score = np.sum(normalized_image1 * normalized_image2)
-    return ncc_score
 
 
 def gaussian_normalize_to_01(img):

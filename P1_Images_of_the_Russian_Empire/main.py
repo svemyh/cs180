@@ -10,7 +10,7 @@ import matplotlib.image as mpimg
 from aligner import Aligner
 from utils import display_images
 from skimage.transform import rescale, resize
-from utils import translate_image
+from utils import translate_image, remove_borders
 
 
 INPUT_IMAGE = "data/monastery.jpg"
@@ -30,24 +30,25 @@ height = np.floor(im.shape[0] / 3.0).astype(np.int32)
 r = im[2 * height : 3 * height]
 g = im[height : 2 * height]
 b = im[:height]
+r, g, b = remove_borders(r, g, b)
 zero = np.zeros_like(r)
 
 aligner = Aligner()
 # aligning images 'r' and 'g' to a position as similar as possible to 'b'
 ar = aligner.simple_align(r, b)
 ag = aligner.simple_align(g, b)
-
+print("Alignment done")
 # Creating color image by assembling the three colour channels red, green and blue.
 im_out_baseline = np.dstack([r, g, b])
 im_out = np.dstack([ar, ag, b])
 
 display_images(r, g, b, im_out_baseline) # For debugging
 display_images(ar, ag, b, im_out)  
-
+print("Display done")
 r_man = translate_image(r, 3, -2)
 g_man = translate_image(g, 2, 4)
 im_man = np.dstack([r_man, g_man, b])
-display_images(r_man, g_man, b, im_man)
+#display_images(r_man, g_man, b, im_man)
 
 
 display_images(r, ar, zero, zero) # For debugging

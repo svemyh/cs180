@@ -5,7 +5,7 @@ from PIL import Image
 
 def display_images(r, g, b, im_out):
     """Displays a single large figure with 4 subplots."""
-
+    print("Displaying images...")
     fig, axs = plt.subplots(2, 2, figsize=(12, 10))
     axs[0, 0].imshow(r, cmap="gray")
     axs[0, 0].set_title("r image")
@@ -122,3 +122,13 @@ def adjust_average_pixel_value(source_img, target_img):
     adjusted_img = np.clip(adjusted_img, 0, 1)
     
     return adjusted_img
+
+
+def remove_borders(r, g, b):
+    """Remove borders such that only the overlapping parts remain. Solution could be more or less intelligent"""
+    assert r.shape == g.shape == b.shape
+    max_height, max_width = r.shape
+    r = crop_image_from_center(r, (max_height//2, max_width//2), int(0.85*min(max_height, max_width)/2))
+    g = crop_image_from_center(g, (max_height//2, max_width//2), int(0.85*min(max_height, max_width)/2))
+    b = crop_image_from_center(b, (max_height//2, max_width//2), int(0.85*min(max_height, max_width)/2))
+    return r, g, b
