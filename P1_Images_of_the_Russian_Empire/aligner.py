@@ -1,10 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from utils import crop_image_from_center, translate_image, numpyarr_to_img, adjust_average_pixel_value
+from utils import (
+    crop_image_from_center,
+    translate_image,
+    numpyarr_to_img,
+    adjust_average_pixel_value,
+    display_image_opencv,
+)
 from ncc import ncc2
 import skimage as sk
 import skimage.io as skio
-from image_similarity import custom_metric
+from image_similarity import custom_metric, canny_edge_detection
 
 # align the images
 # functions that might be useful for aligning the images include:
@@ -51,10 +57,13 @@ class Aligner:
                     center=(center_x, center_y),
                     circumradius=SEARCH_GRID_CIRCUMRADIUS,
                 )
-                cropped_base_img = adjust_average_pixel_value(cropped_base_img, cropped_target_img)
+                cropped_base_img = adjust_average_pixel_value(
+                    cropped_base_img, cropped_target_img
+                )
 
+                croppped_base_edges = canny_edge_detection(cropped_base_img)
+                croppped_target_edges = canny_edge_detection(cropped_target_img)
 
-                
                 # fig, axs = plt.subplots(1, 5, figsize=(15, 5)) # Debugging
                 # axs[0].imshow(cropped_base_img, cmap="gray")
                 # axs[0].set_title("Cropped Base Image")
@@ -62,34 +71,40 @@ class Aligner:
                 # axs[1].imshow(cropped_target_img, cmap="gray")
                 # axs[1].set_title("Cropped Target Image")
 
-                # cropped_val_img = translate_image(
-                #     cropped_base_img, i, -j
-                # )
                 # zero_img = np.zeros_like(cropped_base_img)
                 # axs[2].imshow(zero_img, cmap="gray")
                 # axs[2].set_title("Cropped Base Image with translation")
 
-                # axs[3].imshow(zero_img, cmap="gray")
+                # axs[3].imshow(croppped_base_edges, cmap="gray")
                 # axs[3].set_title("Cropped Base Image modified")
 
-                # axs[4].imshow(zero_img, cmap="gray")
+                # axs[4].imshow(croppped_target_edges, cmap="gray")
                 # axs[4].set_title("Cropped Target Image modified")
                 # plt.tight_layout()
                 # plt.show()
 
-                # print(f"Similiarity score: {similiarity_score} at coords: {i, j}")
+                # display_image_opencv(cropped_base_img, 3)
+                # display_image_opencv(cropped_target_img, 3)
+                # display_image_opencv(croppped_base_edges, 3)
+                # display_image_opencv(croppped_target_edges, 3)
 
+                cropped_base_img = croppped_base_edges
+                cropped_target_img = croppped_target_edges
 
-                if custom_metric(cropped_base_img, cropped_target_img) < best_alignment_score:
+                if (
+                    custom_metric(cropped_base_img, cropped_target_img)
+                    < best_alignment_score
+                ):
                     best_alignment = (i, j)
-                    best_alignment_score = custom_metric(cropped_base_img, cropped_target_img)
+                    best_alignment_score = custom_metric(
+                        cropped_base_img, cropped_target_img
+                    )
                     print(f"***Similiarity score: {best_alignment_score} at: {i, j}")
 
         print(f"best alignment at coords: {best_alignment}")
-        aligned_image = translate_image(base_img, best_alignment[0], best_alignment[1])
+        aligned_image = translate_image(base_img, -best_alignment[1], best_alignment[0])
 
         return aligned_image
-
 
 
 def gaussian_normalize_to_01(img):

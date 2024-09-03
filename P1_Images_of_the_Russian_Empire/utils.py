@@ -1,6 +1,27 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+import cv2
+import skimage as sk
+
+
+def get_3_colourchannels_boilerplate(input_img):
+    """Cleaning up the handout code"""
+
+    im = plt.imread(input_img)
+    # convert to double (might want to do this later on to save memory)
+    im = sk.img_as_float(im)
+
+    # im = resize(im, (int(im.shape[0] / 2), int(im.shape[1] / 2)), anti_aliasing=True)
+
+    # compute height of each part as simply 1/3 of total height
+    height = np.floor(im.shape[0] / 3.0).astype(np.int32)
+
+    # separate the color channels
+    r = im[2 * height : 3 * height]
+    g = im[height : 2 * height]
+    b = im[:height]
+    return r, g, b
 
 
 def display_images(r, g, b, im_out):
@@ -33,6 +54,33 @@ def display_images(r, g, b, im_out):
     plt.tight_layout()
 
     plt.show()
+
+
+def display_images_noQt(r, g, b, im_out):
+    """Display images for debugging. Avoids all use of Qt."""
+    print("Displaying images...")
+
+    # Normalize the grayscale images if they are in float format
+    if r.dtype == np.float64:
+        r = (255 * r).astype(np.uint8)
+    if g.dtype == np.float64:
+        g = (255 * g).astype(np.uint8)
+    if b.dtype == np.float64:
+        b = (255 * b).astype(np.uint8)
+
+    # Convert the colorized output to uint8 if necessary
+    if im_out.dtype == np.float64:
+        im_out = (255 * im_out).astype(np.uint8)
+
+    # Display each image in a separate window
+    cv2.imshow("r image", r)
+    cv2.imshow("g image", g)
+    cv2.imshow("b image", b)
+    cv2.imshow("Colorized image", im_out)
+
+    # Wait indefinitely until a key is pressed, then close all windows
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 # # Debug the indivudidual images
@@ -109,18 +157,18 @@ def translate_image(img, x_offset: int, y_offset: int):
 
 def numpyarr_to_img(image_array):
     image_array = np.clip(image_array, 0, 255).astype(np.uint8)
-    image = Image.fromarray(image_array, mode='L')
+    image = Image.fromarray(image_array, mode="L")
     return image
 
 
 def adjust_average_pixel_value(source_img, target_img):
     avg_source = np.mean(source_img)
     avg_target = np.mean(target_img)
-    
+
     difference = avg_target - avg_source
     adjusted_img = source_img + difference
     adjusted_img = np.clip(adjusted_img, 0, 1)
-    
+
     return adjusted_img
 
 
@@ -128,7 +176,31 @@ def remove_borders(r, g, b):
     """Remove borders such that only the overlapping parts remain. Solution could be more or less intelligent"""
     assert r.shape == g.shape == b.shape
     max_height, max_width = r.shape
-    r = crop_image_from_center(r, (max_height//2, max_width//2), int(0.85*min(max_height, max_width)/2))
-    g = crop_image_from_center(g, (max_height//2, max_width//2), int(0.85*min(max_height, max_width)/2))
-    b = crop_image_from_center(b, (max_height//2, max_width//2), int(0.85*min(max_height, max_width)/2))
+    r = crop_image_from_center(
+        r, (max_height // 2, max_width // 2), int(0.85 * min(max_height, max_width) / 2)
+    )
+    g = crop_image_from_center(
+        g, (max_height // 2, max_width // 2), int(0.85 * min(max_height, max_width) / 2)
+    )
+    b = crop_image_from_center(
+        b, (max_height // 2, max_width // 2), int(0.85 * min(max_height, max_width) / 2)
+    )
     return r, g, b
+
+
+def display_image(image_array):
+    img = Image.fromarray(image_array)
+    img.show()
+
+
+def display_image_opencv(image_array, scale_factor=1.0):
+
+    height, width = image_array.shape[:2]
+    new_dimensions = (int(width * scale_factor), int(height * scale_factor))
+    resized_image = cv2.resize(
+        image_array, new_dimensions, interpolation=cv2.INTER_LINEAR
+    )
+
+    cv2.imshow("Image", resized_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
