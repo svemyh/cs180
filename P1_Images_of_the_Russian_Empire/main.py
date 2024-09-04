@@ -20,7 +20,7 @@ from utils import translate_image, remove_borders
 from PIL import Image
 
 
-INPUT_IMAGE = "data/tobolsk.jpg"
+INPUT_IMAGE = "data/cathedral.jpg"
 OUTPUT_IMAGE_PATH = "output/out_colourized.jpg"
 
 
@@ -28,6 +28,26 @@ if __name__ == "__main__":
     r, g, b = get_3_colourchannels_boilerplate(INPUT_IMAGE)
     r, g, b = remove_borders(r, g, b)
 
+
+    # consturcting image manually
+    # current algo-estimate
+    r_man = translate_image(r, 3, -8)
+    g_man = translate_image(g, 2, -5)
+
+
+
+    # attempt at imporivng algo estimate
+    r_man = translate_image(r, 3, -8)
+    g_man = translate_image(g, 2, -5)
+
+    
+    im_man = np.dstack([r_man, g_man, b])
+    display_image_opencv(im_man, 3)
+
+
+    
+
+    
     # aligning images 'r' and 'g' to a position as similar as possible to 'b'
     aligner = Aligner()
     ar = aligner.simple_align(r, b)
@@ -37,16 +57,12 @@ if __name__ == "__main__":
     im_out_baseline = np.dstack([r, g, b])
     im_out = np.dstack([ar, ag, b])
 
-    r_man = translate_image(r, 3, -2)
-    g_man = translate_image(g, 2, 4)
+    
 
-    # r_man = translate_image(r, 2, -3)
-    # g_man = translate_image(g, 2, 3)
-
-    im_man = np.dstack([r_man, g_man, b])
+    
 
     display_image_opencv(im_out_baseline, 3)
     display_image_opencv(im_out, 3)
-    display_image_opencv(im_man, 3)
+   
 
     plt.imsave(OUTPUT_IMAGE_PATH, im_out)

@@ -22,14 +22,34 @@ def custom_metric(img1, img2):
     pcc, _ = pearson_corr_coeff(img1, img2)
 
     # s += 0.0 * abs(mse(img1, img2))
-    # s += 0.0 * abs(nrmse(img1, img2))
-    # s += 0.0 * abs(ncc2(img1, img2))
-    # s += 0.0 * abs(pcc)
-    # s += 0.0 * ssim_metric(img1, img2)
+    #s += 1.0 * abs(nrmse(img1, img2))
+    # s += 1.0 * abs(ncc2(img1, img2))
+    #s += 0.0 * abs(pcc)
+    s += 1.0 * ssim_metric(img1, img2)
     # s += 0.0 * sobel_metric(img1, img2, 1, 0)
     # s += 0.0 * sobel_metric(img1, img2, 0, 1)
-    s += 1.0 * mae(img1, img2)
-    s += 0.0 * l2_norm_mean(img1, img2)
+    #s += 0.5 * mae(img1, img2)
+    #s += 1.0 * l2_norm_mean(img1, img2)
+
+    return s
+
+
+def custom_edge_metric(img1, img2):
+    img1 = img1 * 100
+    img2 = img2 * 100
+
+    s = 0  # similarity-score as weighted sum of different metrics
+    pcc, _ = pearson_corr_coeff(img1, img2)
+
+    # s += 0.0 * abs(mse(img1, img2))
+    #s += 1.0 * abs(nrmse(img1, img2))
+    # s += 1.0 * abs(ncc2(img1, img2))
+    #s += 0.0 * abs(pcc)
+    #s += 1.0 * ssim_metric(img1, img2)
+    # s += 0.0 * sobel_metric(img1, img2, 1, 0)
+    # s += 0.0 * sobel_metric(img1, img2, 0, 1)
+    #s += 0.5 * mae(img1, img2)
+    s += 1.0 * l2_norm_mean(img1, img2)
 
     return s
 
@@ -72,7 +92,7 @@ def ncc_v0(img1, img2):
 def canny_edge_detection(img_2d):
     img_2d = (255 * img_2d).astype(np.uint8)
 
-    img_blur = cv2.GaussianBlur(img_2d, (5, 5), 0)
-    edges = cv2.Canny(image=img_blur, threshold1=100, threshold2=200)
+    img_blur = cv2.GaussianBlur(img_2d, (1, 1), 0)
+    edges = cv2.Canny(image=img_blur, threshold1=40, threshold2=300)
 
     return edges

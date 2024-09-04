@@ -10,7 +10,7 @@ from utils import (
 from ncc import ncc2
 import skimage as sk
 import skimage.io as skio
-from image_similarity import custom_metric, canny_edge_detection
+from image_similarity import custom_metric, custom_edge_metric, canny_edge_detection
 
 # align the images
 # functions that might be useful for aligning the images include:
@@ -28,7 +28,7 @@ class Aligner:
 
         ### User defined parameters
         N = 8
-        SEARCH_GRID_CIRCUMRADIUS = 200
+        SEARCH_GRID_CIRCUMRADIUS = 40
 
         # Compare a large as possible window of pixels
         SEARCH_GRID_CIRCUMRADIUS = min(
@@ -83,25 +83,22 @@ class Aligner:
                 # plt.tight_layout()
                 # plt.show()
 
-                # display_image_opencv(cropped_base_img, 3)
-                # display_image_opencv(cropped_target_img, 3)
-                # display_image_opencv(croppped_base_edges, 3)
-                # display_image_opencv(croppped_target_edges, 3)
+                #display_image_opencv(cropped_base_img, 6)
+                #display_image_opencv(cropped_target_img, 6)
+                #display_image_opencv(croppped_base_edges, 6)
+                #display_image_opencv(croppped_target_edges, 6)
 
-                cropped_base_img = croppped_base_edges
-                cropped_target_img = croppped_target_edges
+                # weighted sum on both "regular" and edge images
+                similarity_score = 600.0 * custom_metric(
+                    cropped_base_img, cropped_target_img
+                ) + 1.0 * custom_edge_metric(croppped_base_edges, croppped_target_edges)
 
-                if (
-                    custom_metric(cropped_base_img, cropped_target_img)
-                    < best_alignment_score
-                ):
+                if similarity_score < best_alignment_score:
                     best_alignment = (i, j)
-                    best_alignment_score = custom_metric(
-                        cropped_base_img, cropped_target_img
-                    )
-                    print(f"***Similiarity score: {best_alignment_score} at: {i, j}")
+                    best_alignment_score = similarity_score
+                    print(f"***Similiarity score: {best_alignment_score} at: {-j, i}")
 
-        print(f"best alignment at coords: {best_alignment}")
+        print(f"best alignment at coords: {-best_alignment[1], best_alignment[0]}")
         aligned_image = translate_image(base_img, -best_alignment[1], best_alignment[0])
 
         return aligned_image
