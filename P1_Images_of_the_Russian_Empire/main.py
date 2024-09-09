@@ -21,14 +21,13 @@ from utils import translate_image, remove_borders
 from PIL import Image
 
 
-INPUT_IMAGE = "./data/monastery.jpg"
+INPUT_IMAGE = "./data/cathedral.jpg"
 OUTPUT_IMAGE_PATH = "./output/out_colourized.jpg"
 
 
 if __name__ == "__main__":
     r, g, b = get_3_colourchannels_boilerplate(INPUT_IMAGE)
-    r, g, b = resize_channels(r, g, b, (600, 600))
-
+    r, g, b = resize_channels(r, g, b, (500, 500))
     r, g, b = remove_borders(r, g, b)
 
 
@@ -37,18 +36,12 @@ if __name__ == "__main__":
     r_man = translate_image(r, 3, -8)
     g_man = translate_image(g, 2, -5)
 
-
-
     # attempt at imporivng algo estimate
     r_man = translate_image(r, 3, -8)
-    g_man = translate_image(g, 2, -5)
-
-    
+    g_man = translate_image(g, 2, -5)    
     im_man = np.dstack([r_man, g_man, b])
     display_image_opencv(im_man, 3)
 
-
-    
 
     
     # aligning images 'r' and 'g' to a position as similar as possible to 'b'
@@ -56,14 +49,11 @@ if __name__ == "__main__":
     #ar = aligner.simple_align(b, b)
     ar = aligner.simple_align(r, b)
     ag = aligner.simple_align(g, b)
+    ab = aligner.simple_align(b, b)
 
     # Creating color image by assembling the three colour channels red, green and blue.
     im_out_baseline = np.dstack([r, g, b])
     im_out = np.dstack([ar, ag, b])
-
-    
-
-    
 
     display_image_opencv(im_out_baseline, 3)
     display_image_opencv(im_out, 3)

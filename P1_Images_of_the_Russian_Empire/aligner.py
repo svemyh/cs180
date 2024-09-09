@@ -97,7 +97,7 @@ class Aligner:
                 if similarity_score < best_alignment_score:
                     best_alignment = (i, j)
                     best_alignment_score = similarity_score
-                    print(f"***Similiarity score: {best_alignment_score} at: {-j, i}")
+                    print(f"***Dissimiliarity score: {best_alignment_score} at: {-j, i}")
 
         print(f"best alignment at coords: {-best_alignment[1], best_alignment[0]}")
         aligned_image = translate_image(base_img, -best_alignment[1], best_alignment[0])

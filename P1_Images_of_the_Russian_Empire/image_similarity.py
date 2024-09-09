@@ -25,10 +25,10 @@ def custom_metric(img1, img2):
     #s += 1.0 * abs(nrmse(img1, img2))
     # s += 1.0 * abs(ncc2(img1, img2))
     #s += 0.0 * abs(pcc)
-    s += 0.0 * ssim_metric(img1, img2)
+    s += 1.0 * ssim_metric(img1, img2)
     # s += 0.0 * sobel_metric(img1, img2, 1, 0)
     # s += 0.0 * sobel_metric(img1, img2, 0, 1)
-    s += 1 * mae(img1, img2)
+    #s += 1 * mae(img1, img2)
     #s += 1.0 * l2_norm_mean(img1, img2)
     #s += 1.0 * ncc_v3(img1, img2)
 
