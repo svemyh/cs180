@@ -24,6 +24,23 @@ def get_3_colourchannels_boilerplate(input_img):
     return r, g, b
 
 
+def resize_channels(r, g, b, new_size):
+    """    Resize each color channel to the given size (width, height)."""
+    
+    r_img = Image.fromarray((r * 255).astype(np.uint8))
+    g_img = Image.fromarray((g * 255).astype(np.uint8))
+    b_img = Image.fromarray((b * 255).astype(np.uint8))
+    
+    resized_r = r_img.resize(new_size)
+    resized_g = g_img.resize(new_size)
+    resized_b = b_img.resize(new_size)
+    
+    resized_r = np.array(resized_r) / 255.0
+    resized_g = np.array(resized_g) / 255.0
+    resized_b = np.array(resized_b) / 255.0
+    
+    return resized_r, resized_g, resized_b
+
 def display_images(r, g, b, im_out):
     """Displays a single large figure with 4 subplots."""
     print("Displaying images...")

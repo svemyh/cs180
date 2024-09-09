@@ -28,7 +28,7 @@ class Aligner:
 
         ### User defined parameters
         N = 8
-        SEARCH_GRID_CIRCUMRADIUS = 40
+        SEARCH_GRID_CIRCUMRADIUS = 1000
 
         # Compare a large as possible window of pixels
         SEARCH_GRID_CIRCUMRADIUS = min(
