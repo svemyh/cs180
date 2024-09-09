@@ -1,10 +1,11 @@
 import numpy as np
 
+
 class Aligner:
     def dummy_align(self, base_img, target_img):
         """Handy for testing purposes. Returns the base image."""
         return base_img
-    
+
     def simple_align(_img_1, _img_2, N=15):
         """Searches over a window of [-N,N] possible translational pixel displacements."""
         best_value = float("inf")
@@ -25,12 +26,12 @@ class Aligner:
         print(f"dy = {best_dy}")
 
         return img_translate(_img_1, best_dx, best_dy)
-    
+
 
 def crop_borders(img, percentage):
     x_crop = int(percentage * img.shape[0] / 2)
     y_crop = int(percentage * img.shape[1] / 2)
-    return img[x_crop:img.shape[0]-x_crop, y_crop:img.shape[1]-y_crop]
+    return img[x_crop : img.shape[0] - x_crop, y_crop : img.shape[1] - y_crop]
 
 
 def img_translate(img, dx, dy):
@@ -44,6 +45,7 @@ def custom_metric(img_1, img_2):
     score += sum_of_squared_diff(img_1, img_2)
     return score
 
+
 def sum_of_squared_diff(img_1, img_2):
     return np.sum((img_1 - img_2) ** 2)
 
@@ -53,15 +55,22 @@ def remove_borders(r, g, b, percentage=0.9):
     assert r.shape == g.shape == b.shape
     max_height, max_width = r.shape
     r = crop_image_from_center(
-        r, (max_height // 2, max_width // 2), int(percentage * min(max_height, max_width) / 2)
+        r,
+        (max_height // 2, max_width // 2),
+        int(percentage * min(max_height, max_width) / 2),
     )
     g = crop_image_from_center(
-        g, (max_height // 2, max_width // 2), int(percentage * min(max_height, max_width) / 2)
+        g,
+        (max_height // 2, max_width // 2),
+        int(percentage * min(max_height, max_width) / 2),
     )
     b = crop_image_from_center(
-        b, (max_height // 2, max_width // 2), int(percentage * min(max_height, max_width) / 2)
+        b,
+        (max_height // 2, max_width // 2),
+        int(percentage * min(max_height, max_width) / 2),
     )
     return r, g, b
+
 
 def crop_image_from_center(img, center, circumradius: int):
     """Crop image by declaring a centr pixel coordinate then grabbing the 'circumradius' amount of pixels above it, below, to its right and elft."""

@@ -18,19 +18,18 @@ if __name__ == "__main__":
     height = int(np.floor(im.shape[0] / 3.0))
     im = sk.img_as_float(im)
     b = im[:height]
-    g = im[height: 2 * height]
-    r = im[2 * height: 3 * height]
+    g = im[height : 2 * height]
+    r = im[2 * height : 3 * height]
 
-    ### 
-    aligner = Aligner
-    ar = aligner.simple_align(r, g)
-    #ag = aligner.simple_align(g, g)
+    ### Align
+    ar = Aligner.simple_align(r, g)
+    # ag = aligner.simple_align(g, g)
     ag = g
-    ab = aligner.simple_align(b, g)
+    ab = Aligner.simple_align(b, g)
 
     ar, ag, ab = remove_borders(ar, ag, ab)
-
     im_out = np.dstack([ar, ag, ab])
 
+    ### Save and display
     skio.imshow(im_out)
     skio.show()
