@@ -14,6 +14,7 @@ from utils import (
     display_images_noQt,
     display_image,
     display_image_opencv,
+    resize_channels
 )
 from skimage.transform import rescale, resize
 from utils import translate_image, remove_borders
@@ -26,6 +27,8 @@ OUTPUT_IMAGE_PATH = "./output/out_colourized.jpg"
 
 if __name__ == "__main__":
     r, g, b = get_3_colourchannels_boilerplate(INPUT_IMAGE)
+    r, g, b = resize_channels(r, g, b, (600, 600))
+
     r, g, b = remove_borders(r, g, b)
 
 
