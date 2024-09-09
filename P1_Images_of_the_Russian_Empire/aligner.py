@@ -27,8 +27,8 @@ class Aligner:
         assert base_img.shape == target_img.shape
 
         ### User defined parameters
-        N = 8
-        SEARCH_GRID_CIRCUMRADIUS = 40
+        N = 15
+        SEARCH_GRID_CIRCUMRADIUS = 15
 
         # Compare a large as possible window of pixels
         SEARCH_GRID_CIRCUMRADIUS = min(
@@ -57,9 +57,10 @@ class Aligner:
                     center=(center_x, center_y),
                     circumradius=SEARCH_GRID_CIRCUMRADIUS,
                 )
-                cropped_base_img = adjust_average_pixel_value(
-                    cropped_base_img, cropped_target_img
-                )
+
+                #cropped_base_img = adjust_average_pixel_value(
+                #    cropped_base_img, cropped_target_img
+                #)
 
                 croppped_base_edges = canny_edge_detection(cropped_base_img)
                 croppped_target_edges = canny_edge_detection(cropped_target_img)
@@ -89,9 +90,9 @@ class Aligner:
                 #display_image_opencv(croppped_target_edges, 6)
 
                 # weighted sum on both "regular" and edge images
-                similarity_score = 600.0 * custom_metric(
+                similarity_score = 1.0 * custom_metric(
                     cropped_base_img, cropped_target_img
-                ) + 1.0 * custom_edge_metric(croppped_base_edges, croppped_target_edges)
+                ) + 0.0 * custom_edge_metric(croppped_base_edges, croppped_target_edges)
 
                 if similarity_score < best_alignment_score:
                     best_alignment = (i, j)

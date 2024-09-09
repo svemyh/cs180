@@ -25,11 +25,12 @@ def custom_metric(img1, img2):
     #s += 1.0 * abs(nrmse(img1, img2))
     # s += 1.0 * abs(ncc2(img1, img2))
     #s += 0.0 * abs(pcc)
-    s += 1.0 * ssim_metric(img1, img2)
+    s += 0.0 * ssim_metric(img1, img2)
     # s += 0.0 * sobel_metric(img1, img2, 1, 0)
     # s += 0.0 * sobel_metric(img1, img2, 0, 1)
-    #s += 0.5 * mae(img1, img2)
+    s += 1 * mae(img1, img2)
     #s += 1.0 * l2_norm_mean(img1, img2)
+    #s += 1.0 * ncc_v3(img1, img2)
 
     return s
 
@@ -50,6 +51,7 @@ def custom_edge_metric(img1, img2):
     # s += 0.0 * sobel_metric(img1, img2, 0, 1)
     #s += 0.5 * mae(img1, img2)
     s += 1.0 * l2_norm_mean(img1, img2)
+    # s += 1.0 * ncc_v3(img1, img2)
 
     return s
 
@@ -86,6 +88,23 @@ def ncc_v0(img1, img2):
     normalized_image2 = img2 / norm_img2
 
     ncc_score = np.sum(normalized_image1 * normalized_image2)
+    return ncc_score
+
+def ncc_v3(img1, img2):
+    norm_img1 = np.linalg.norm(img1)
+    norm_img2 = np.linalg.norm(img2)
+
+    img1 = img1 - np.mean(img1)
+    img2 = img2 - np.mean(img2)
+
+
+    normalized_image1 = img1 / norm_img1
+    normalized_image2 = img2 / norm_img2
+
+    normalized_image1 = normalized_image1.flatten()
+    normalized_image2 = normalized_image2.flatten()
+
+    ncc_score = np.dot(normalized_image1, normalized_image2)
     return ncc_score
 
 

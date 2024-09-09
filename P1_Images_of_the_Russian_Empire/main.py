@@ -20,8 +20,8 @@ from utils import translate_image, remove_borders
 from PIL import Image
 
 
-INPUT_IMAGE = "data/cathedral.jpg"
-OUTPUT_IMAGE_PATH = "output/out_colourized.jpg"
+INPUT_IMAGE = "./data/monastery.jpg"
+OUTPUT_IMAGE_PATH = "./output/out_colourized.jpg"
 
 
 if __name__ == "__main__":
@@ -50,6 +50,7 @@ if __name__ == "__main__":
     
     # aligning images 'r' and 'g' to a position as similar as possible to 'b'
     aligner = Aligner()
+    #ar = aligner.simple_align(b, b)
     ar = aligner.simple_align(r, b)
     ag = aligner.simple_align(g, b)
 
