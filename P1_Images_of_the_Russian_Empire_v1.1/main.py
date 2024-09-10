@@ -8,7 +8,7 @@ import skimage as sk
 import skimage.io as skio
 import matplotlib.pyplot as plt
 
-from utils import Aligner, remove_borders
+from utils import Aligner, remove_borders, translate_image
 from tests import display_pyramid
 
 
@@ -30,10 +30,34 @@ def generate_pyramid(img, smallest_size=32):
         if min(resized_img_width, resized_img_height) < smallest_size:
             break
         pyramid.append(img)
+    
+    pyramid.reverse()
+    return pyramid  # smallest image first
 
-    pyramid.reverse()  # smallest image first
-    print(len(pyramid))
-    return pyramid
+
+def align_using_pyramids(base_pyramid, target_pyramid):
+    """Returns base_pyramid aligned to target_pyramid."""
+
+    assert len(base_pyramid) == len(target_pyramid), "Pyramids must be of same shape"
+
+    best_alignment = (0, 0)
+    for i in range(len(base_pyramid)):
+        best_alignment = (best_alignment[0] * 2, best_alignment[1] * 2)
+
+        next_img, next_alignment = Aligner.simple_align(
+            translate_image(base_pyramid[i], best_alignment[0], best_alignment[1]), 
+            target_pyramid[i], 
+            N=15, 
+            search_grid_circumradius=20
+        )
+        
+        best_alignment = (best_alignment[0] + next_alignment[0], best_alignment[1] + next_alignment[1])
+    
+    print(f"Optimal alignment found: dx={best_alignment[0]}, dy={best_alignment[1]}")
+
+    aligned_base_img = translate_image(base_pyramid[len(base_pyramid)-1], best_alignment[0], best_alignment[1])
+
+    return aligned_base_img
 
 
 if __name__ == "__main__":
@@ -46,12 +70,17 @@ if __name__ == "__main__":
     g = im[height : 2 * height]
     r = im[2 * height : 3 * height]
 
-    display_pyramid(generate_pyramid(g))
+    #display_pyramid(generate_pyramid(g))
+
+    ar = align_using_pyramids(generate_pyramid(r), generate_pyramid(g))
+    ab = align_using_pyramids(generate_pyramid(b), generate_pyramid(g))
+    ag = g
+    
 
     ### Align
-    ar = Aligner.simple_align(r, g, N=15, search_grid_circumradius=20)
-    ag = g
-    ab = Aligner.simple_align(b, g, N=15, search_grid_circumradius=20)
+    #ar = Aligner.simple_align(r, g, N=15, search_grid_circumradius=20)
+    #ag = g
+    #ab = Aligner.simple_align(b, g, N=15, search_grid_circumradius=20)
 
     ar, ag, ab = remove_borders(ar, ag, ab)
     im_out = np.dstack([ar, ag, ab])  # Reconstruct the coloured image

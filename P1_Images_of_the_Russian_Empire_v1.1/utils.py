@@ -21,6 +21,7 @@ class Aligner:
         assert (
             base_img.shape == target_img.shape
         ), "Images are assumed to be of same shape."
+
         img_width, img_height = base_img.shape
 
         search_grid_circumradius = min(
@@ -37,7 +38,7 @@ class Aligner:
         )
 
         best_alignment = (0, 0)
-        # Init at max. Keeps track of current lowest image similarity score.
+        # Init score at max. Keeps track of current lowest image similarity score.
         best_alignment_score = np.inf
         for i in range(-N, N):
             for j in range(-N, N):
@@ -48,9 +49,10 @@ class Aligner:
                     best_alignment_score = dissimilarity_score
                     best_alignment = (i, j)
 
-        print(f"Alignment: {best_alignment}")
-
-        return translate_image(base_img, best_alignment[0], best_alignment[1])
+        return (
+            translate_image(base_img, best_alignment[0], best_alignment[1]),
+            best_alignment,
+        )
 
 
 class Metrics:
