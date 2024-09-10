@@ -1,9 +1,0 @@
-name: cs180-p1
-channels:
-  - defaults
-dependencies:
-  - python=3.10
-  - pip:
-      - numpy==1.20.0
-      - scikit-image>=0.24.0
-      
