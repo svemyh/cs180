@@ -6,13 +6,35 @@
 import numpy as np
 import skimage as sk
 import skimage.io as skio
-from utils import Aligner, remove_borders
 import matplotlib.pyplot as plt
 
+from utils import Aligner, remove_borders
+from tests import display_pyramid
 
-INPUT_IMAGE = "./data/cathedral.jpg"
+
 INPUT_IMAGE = "./data/church.tif"
 OUTPUT_IMAGE_PATH = "./output/out_colourized.jpg"
+
+
+def generate_pyramid(img, smallest_size=32):
+    """Generates image pyramid, halving image resolution each step, down to the smallest given size."""
+
+    pyramid = [img]
+    while True:
+        img_width, img_height = img.shape
+        img = sk.transform.resize(
+            img, (img_width // 2, img_height // 2)
+        )  # halve image res
+        resized_img_width, resized_img_height = img.shape
+
+        if min(resized_img_width, resized_img_height) < smallest_size:
+            break
+        pyramid.append(img)
+
+    pyramid.reverse()  # smallest image first
+    print(len(pyramid))
+    return pyramid
+
 
 if __name__ == "__main__":
 
@@ -24,10 +46,12 @@ if __name__ == "__main__":
     g = im[height : 2 * height]
     r = im[2 * height : 3 * height]
 
+    display_pyramid(generate_pyramid(g))
+
     ### Align
-    ar = Aligner.simple_align(r, g, N=15, search_grid_circumradius=20e2)
+    ar = Aligner.simple_align(r, g, N=15, search_grid_circumradius=20)
     ag = g
-    ab = Aligner.simple_align(b, g, N=15, search_grid_circumradius=20e2)
+    ab = Aligner.simple_align(b, g, N=15, search_grid_circumradius=20)
 
     ar, ag, ab = remove_borders(ar, ag, ab)
     im_out = np.dstack([ar, ag, ab])  # Reconstruct the coloured image

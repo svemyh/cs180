@@ -54,7 +54,6 @@ class Aligner:
 
 
 class Metrics:
-
     def l1_norm(img_1, img_2):
         return np.sum(np.abs(img_1 - img_2))
 
