@@ -1,10 +1,9 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import skimage.io as skio
 
 
 class Aligner:
-    def dummy_align(base_img, target_img):
-        """Handy for testing purposes. Returns the base image."""
-        return base_img
 
     def simple_align(base_img, target_img, N=15, search_grid_circumradius=np.inf):
         """Searches over a window of [-N,N] possible translational pixel displacements.
@@ -53,6 +52,10 @@ class Aligner:
             translate_image(base_img, best_alignment[0], best_alignment[1]),
             best_alignment,
         )
+
+    def dummy_align(base_img, target_img):
+        """Handy for testing purposes. Returns the base image."""
+        return base_img, (0, 0)
 
 
 class Metrics:
@@ -105,3 +108,10 @@ def crop_image_from_center(img, center, circumradius: int):
         center_col - circumradius : center_col + circumradius,
     ]
     return cropped_img
+
+
+def display_pyramid(pyramid):
+    """Displays all images in the pyramid sequentially."""
+    for i in pyramid:
+        skio.imshow(i)
+        skio.show()

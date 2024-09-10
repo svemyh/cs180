@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 
 
 INPUT_IMAGE = "./data/cathedral.jpg"
-INPUT_IMAGE = "./data/church.tif"
 OUTPUT_IMAGE_PATH = "./output/out_colourized.jpg"
 
 if __name__ == "__main__":
@@ -25,9 +24,9 @@ if __name__ == "__main__":
     r = im[2 * height : 3 * height]
 
     ### Align
-    ar = Aligner.simple_align(r, g, N=15, search_grid_circumradius=20e2)
+    ar, _ = Aligner.simple_align(r, g, N=15, search_grid_circumradius=20e2)
     ag = g
-    ab = Aligner.simple_align(b, g, N=15, search_grid_circumradius=20e2)
+    ab, _ = Aligner.simple_align(b, g, N=15, search_grid_circumradius=20e2)
 
     ar, ag, ab = remove_borders(ar, ag, ab)
     im_out = np.dstack([ar, ag, ab])  # Reconstruct the coloured image
