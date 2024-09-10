@@ -2,56 +2,78 @@ import numpy as np
 
 
 class Aligner:
-    def dummy_align(self, base_img, target_img):
+    def dummy_align(base_img, target_img):
         """Handy for testing purposes. Returns the base image."""
         return base_img
 
-    def simple_align(_img_1, _img_2, N=15):
-        """Searches over a window of [-N,N] possible translational pixel displacements."""
-        best_value = float("inf")
-        best_dx, best_dy = 0, 0
-
-        img_1 = crop_borders(_img_1, 0.1)
-        img_2 = crop_borders(_img_2, 0.1)
-
-        for dx in range(-N, N):
-            for dy in range(-N, N):
-                ssd = custom_metric(img_translate(img_1, dx, dy), img_2)
-                if ssd < best_value:
-                    best_value = ssd
-                    best_dx, best_dy = dx, dy
-
-        print("Alignment:")
-        print(f"dx = {best_dx}")
-        print(f"dy = {best_dy}")
-
-        return img_translate(_img_1, best_dx, best_dy)
+    def simple_align(base_img, target_img, N=15, search_grid_circumradius=np.inf):
+        """Searches over a window of [-N,N] possible translational pixel displacements.
 
 
-def crop_borders(img, percentage):
-    x_crop = int(percentage * img.shape[0] / 2)
-    y_crop = int(percentage * img.shape[1] / 2)
-    return img[x_crop : img.shape[0] - x_crop, y_crop : img.shape[1] - y_crop]
+        Compare a large as possible window of pixels without encountering errors at
+        the borders, by leaving search_grid_circumradius=np.inf.
 
 
-def img_translate(img, dx, dy):
-    result = np.roll(img, dx, axis=1)
-    result = np.roll(result, dy, axis=0)
+        Alternatively choose a smaller search area selected from the center of the
+        image. Width of the smaller search-square is given by 2 * search_grid_circumradius.
+        """
+
+        assert (
+            base_img.shape == target_img.shape
+        ), "Images are assumed to be of same shape."
+        img_width, img_height = base_img.shape
+
+        search_grid_circumradius = min(
+            search_grid_circumradius,
+            img_width // 2 - N,
+            img_height // 2 - N,
+        )
+
+        base_img_cropped = crop_image_from_center(
+            base_img, (img_width // 2, img_height // 2), search_grid_circumradius
+        )
+        target_img_cropped = crop_image_from_center(
+            target_img, (img_width // 2, img_height // 2), search_grid_circumradius
+        )
+
+        best_alignment = (0, 0)
+        # Init at max. Keeps track of current lowest image similarity score.
+        best_alignment_score = np.inf
+        for i in range(-N, N):
+            for j in range(-N, N):
+                dissimilarity_score = Metrics.l2_norm(
+                    translate_image(base_img_cropped, x=i, y=j), target_img_cropped
+                )
+                if dissimilarity_score < best_alignment_score:
+                    best_alignment_score = dissimilarity_score
+                    best_alignment = (i, j)
+
+        print(f"Alignment: {best_alignment}")
+
+        return translate_image(base_img, best_alignment[0], best_alignment[1])
+
+
+class Metrics:
+
+    def l1_norm(img_1, img_2):
+        return np.sum(np.abs(img_1 - img_2))
+
+    def l2_norm(img_1, img_2):
+        return np.sum((img_1 - img_2) ** 2)
+
+    def linf_norm(img_1, img_2):
+        return np.max(np.abs(img_1 - img_2))
+
+
+def translate_image(img, x, y):
+    """Positive x rolls image to the right, positve y rolls image downwards."""
+    result = np.roll(img, x, axis=1)
+    result = np.roll(result, y, axis=0)
     return result
 
 
-def custom_metric(img_1, img_2):
-    score = 0
-    score += sum_of_squared_diff(img_1, img_2)
-    return score
-
-
-def sum_of_squared_diff(img_1, img_2):
-    return np.sum((img_1 - img_2) ** 2)
-
-
 def remove_borders(r, g, b, percentage=0.9):
-    """Remove borders such that only the overlapping parts remain. Solution could be more or less intelligent"""
+    """Remove borders, keeping only a given perventage of the image, crpped from the center."""
     assert r.shape == g.shape == b.shape
     max_height, max_width = r.shape
     r = crop_image_from_center(
@@ -73,9 +95,10 @@ def remove_borders(r, g, b, percentage=0.9):
 
 
 def crop_image_from_center(img, center, circumradius: int):
-    """Crop image by declaring a centr pixel coordinate then grabbing the 'circumradius' amount of pixels above it, below, to its right and elft."""
-    center_row, center_col = center
+    """Crop image by declaring a centr pixel coordinate then grabbing
+    the 'circumradius' amount of pixels above it, below, to its right and its elft."""
 
+    center_row, center_col = center
     cropped_img = img[
         center_row - circumradius : center_row + circumradius,
         center_col - circumradius : center_col + circumradius,

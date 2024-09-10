@@ -6,14 +6,16 @@
 import numpy as np
 import skimage as sk
 import skimage.io as skio
-from skimage.transform import pyramid_gaussian
-from utils import Aligner, crop_borders, remove_borders
+from utils import Aligner, remove_borders
+import matplotlib.pyplot as plt
+
 
 INPUT_IMAGE = "./data/cathedral.jpg"
 OUTPUT_IMAGE_PATH = "./output/out_colourized.jpg"
 
 if __name__ == "__main__":
-    ### Boilerplate / setup
+
+    ### Read image-data and separate into three colour channels 'r', 'g' and 'b'.
     im = skio.imread(INPUT_IMAGE)
     height = int(np.floor(im.shape[0] / 3.0))
     im = sk.img_as_float(im)
@@ -22,14 +24,14 @@ if __name__ == "__main__":
     r = im[2 * height : 3 * height]
 
     ### Align
-    ar = Aligner.simple_align(r, g)
-    # ag = aligner.simple_align(g, g)
+    ar = Aligner.simple_align(r, g, N=15, search_grid_circumradius=20)
     ag = g
-    ab = Aligner.simple_align(b, g)
+    ab = Aligner.simple_align(b, g, N=15, search_grid_circumradius=20)
 
     ar, ag, ab = remove_borders(ar, ag, ab)
-    im_out = np.dstack([ar, ag, ab])
+    im_out = np.dstack([ar, ag, ab])  # Reconstruct the coloured image
 
     ### Save and display
+    plt.imsave(OUTPUT_IMAGE_PATH, im_out)
     skio.imshow(im_out)
     skio.show()
