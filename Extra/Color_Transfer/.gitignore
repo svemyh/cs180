@@ -1,0 +1,7 @@
+
+data/
+__pycache__/
+output/
+
+!data/bliss-windowsxp.jpg
+!data/van-gogh-cafe-terrace-at-midnight.jpg

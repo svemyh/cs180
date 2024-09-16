@@ -23,3 +23,17 @@ def apply_color_transfer_to_frames(
         modified_frame = apply_color_transfer(frame, target_style_img)
 
         cv2.imwrite(frame_path, modified_frame)
+
+
+def is_video(file_path):
+    """Check if the file is a video based on file extension."""
+    video_extensions = {".mp4", ".avi", ".mov", ".mkv", ".flv", ".wmv"}
+    _, ext = os.path.splitext(file_path)
+    return ext.lower() in video_extensions
+
+
+def is_image(file_path):
+    """Check if the file is an image based on file extension."""
+    image_extensions = {".jpg", ".jpeg", ".png", ".bmp", ".tiff"}
+    _, ext = os.path.splitext(file_path)
+    return ext.lower() in image_extensions

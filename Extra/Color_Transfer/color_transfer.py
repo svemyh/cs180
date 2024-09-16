@@ -10,7 +10,7 @@ class ColorTransfer:
         return input_frame
 
     @staticmethod
-    def reinhard_transfer(input_frame, target_style_img, alpha=1.05):
+    def reinhard_transfer(input_frame, target_style_img):
         """Apply Color Transfer [Reinhard, et al, 2001] to the input frame.
 
         Reference: Erik Reinhard, Michael Ashikhmin, Bruce Gooch, Peter Shirley, Color Transfer between
@@ -19,8 +19,11 @@ class ColorTransfer:
         Inspired by @DigitalSreeni. https://youtu.be/_GAhbrGHaVo?si=SQE5u97FHo_kStPR.
         """
 
+        alpha = 1.0
+        beta = 1.0
+
         img = cv2.cvtColor(input_frame, cv2.COLOR_BGR2LAB)
-        target_style_img = cv2.cvtColor(input_frame, cv2.COLOR_BGR2LAB)
+        # target_style_img = cv2.cvtColor(target_style_img, cv2.COLOR_BGR2LAB)
 
         _, _, colour_channels = img.shape
         for chan in range(colour_channels):
@@ -28,9 +31,9 @@ class ColorTransfer:
                 target_style_img[:, :, chan]
             )
             img_mean, img_std = mean_and_std(img[:, :, chan])
-
+            print(target_style_img_mean, target_style_img_std, img_mean, img_std)
             img[:, :, chan] = (
-                (img[:, :, chan] - img_mean) * (target_style_img_std / img_std)
+                (img[:, :, chan] - img_mean) * (target_style_img_std / img_std) * beta
             ) + target_style_img_mean * alpha
 
         reinhard_img = np.clip(np.round(img), 0, 255).astype(np.uint8)
