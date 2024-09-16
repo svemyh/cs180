@@ -10,7 +10,9 @@ def mean_and_std(image):
     return mean, std
 
 
-def apply_color_transfer_to_frames(temp_frame_dir, apply_color_transfer, target_style_img):
+def apply_color_transfer_to_frames(
+    temp_frame_dir, apply_color_transfer, target_style_img
+):
     """Apply color transfer to all frames in the specified directory."""
 
     frame_list = sorted(os.listdir(temp_frame_dir))
